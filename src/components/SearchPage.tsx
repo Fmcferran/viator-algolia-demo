@@ -95,6 +95,59 @@ const DurationRangeInput = connectRange<RangeProps>(({ min, max, currentRefineme
   );
 });
 
+const PriceRangeInput = connectRange(({ min, max, currentRefinement, refine }) => {
+  const [inputValues, setInputValues] = React.useState({
+    min: currentRefinement.min || '',
+    max: currentRefinement.max || '',
+  });
+
+  React.useEffect(() => {
+    setInputValues({
+      min: currentRefinement.min || '',
+      max: currentRefinement.max || '',
+    });
+  }, [currentRefinement]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    refine({
+      min: inputValues.min === '' ? undefined : Number(inputValues.min),
+      max: inputValues.max === '' ? undefined : Number(inputValues.max),
+    });
+  };
+
+  return (
+    <Box px="md">
+      <form onSubmit={handleSubmit}>
+        <Group>
+          <NumberInput
+            value={inputValues.min}
+            onChange={(value) => setInputValues({ ...inputValues, min: value || '' })}
+            placeholder="Min price"
+            min={min}
+            max={max}
+            step={10}
+            w={100}
+            prefix="$"
+          />
+          <Text>to</Text>
+          <NumberInput
+            value={inputValues.max}
+            onChange={(value) => setInputValues({ ...inputValues, max: value || '' })}
+            placeholder="Max price"
+            min={min}
+            max={max}
+            step={10}
+            w={100}
+            prefix="$"
+          />
+          <button type="submit" style={{ display: 'none' }}>Apply</button>
+        </Group>
+      </form>
+    </Box>
+  );
+});
+
 const CustomRatingMenu = connectRefinementList<RatingProps>(({ items, refine }) => {
   return (
     <Stack gap="xs">
@@ -146,7 +199,7 @@ const SearchPage = () => {
 
                 <div>
                   <Title order={6} mb="xs">Price Range</Title>
-                  <RangeInput attribute="price" />
+                  <PriceRangeInput attribute="price" min={0} max={1000} />
                 </div>
 
                 <div>
