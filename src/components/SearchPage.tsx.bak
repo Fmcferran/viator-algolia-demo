@@ -1,0 +1,244 @@
+Fetching Whistler tours...
+Found 50 tours for Whistler
+Generating events...
+Sending 2440 events to Algolia...
+
+    at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at TLSSocket.socketOnEnd (node:_http_client:536:25)
+    at TLSSocket.emit (node:events:519:35)
+    at TLSSocket.emit (node:domain:489:12)
+    at endReadableNT (node:internal/streams/readable:1696:12)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at TLSSocket.socketOnEnd (node:_http_client:536:25)
+    at TLSSocket.emit (node:events:519:35)
+    at TLSSocket.emit (node:domain:489:12)
+    at endReadableNT (node:internal/streams/readable:1696:12)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+
+    at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at TLSSocket.socketOnEnd (node:_http_client:536:25)
+    at TLSSocket.emit (node:events:519:35)
+    at TLSSocket.emit (node:domain:489:12)
+    at endReadableNT (node:internal/streams/readable:1696:12)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at TLSSocket.socketOnEnd (node:_http_client:536:25)
+    at TLSSocket.emit (node:events:519:35)
+    at TLSSocket.emit (node:domain:489:12)
+    at endReadableNT (node:internal/streams/readable:1696:12)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+
+> viator-algolia-demo@0.1.0 dev /Users/fredmcferran/CascadeProjects/Puppy Adoption/viator-algolia-demo
+> vite
+
+
+  VITE v4.4.9  ready in 569 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+
+  import React from 'react';
+import {
+  SearchBox,
+  Hits,
+  RefinementList,
+  RangeInput,
+  Configure,
+  useRange,
+  useRefinementList,
+  Pagination,
+} from 'react-instantsearch';
+import { 
+  Container, 
+  Grid, 
+  Paper, 
+  Title, 
+  Stack, 
+  RangeSlider, 
+  Box,
+  Text,
+  Group,
+  UnstyledButton,
+  Rating,
+} from '@mantine/core';
+import TourCard from './TourCard';
+import { SearchStats } from './SearchStats';
+import { Header } from './Header';
+
+const DurationRangeSlider = () => {
+  const { range, refine } = useRange({
+    attribute: 'durationHours',
+    min: 1,
+    max: 12,
+  });
+
+  const handleChange = (value: [number, number]) => {
+    refine(value);
+  };
+
+  return (
+    <Box px="md">
+      <RangeSlider
+        min={1}
+        max={12}
+        step={0.5}
+        label={(value) => `${value}h`}
+        defaultValue={[range.min || 1, range.max || 12]}
+        onChange={handleChange}
+        marks={[
+          { value: 1, label: '1h' },
+          { value: 6, label: '6h' },
+          { value: 12, label: '12h' },
+        ]}
+      />
+    </Box>
+  );
+};
+
+const CustomRatingMenu = () => {
+  const { items, refine } = useRefinementList({
+    attribute: 'rating',
+  });
+
+  return (
+    <Stack gap="xs">
+      {[4, 3, 2, 1].map((rating) => {
+        const item = items.find((i) => Number(i.value) === rating);
+        const count = item?.count || 0;
+        const isSelected = item?.isRefined || false;
+
+        return (
+          <UnstyledButton
+            key={rating}
+            onClick={() => refine(String(rating))}
+            style={(theme) => ({
+              color: isSelected ? theme.colors.blue[6] : theme.colors.gray[7],
+              fontWeight: isSelected ? 500 : 400,
+              ':hover': {
+                color: theme.colors.blue[6],
+              },
+            })}
+          >
+            <Group>
+              <Rating value={rating} readOnly size="sm" color="#FFB800" />
+              <Text size="sm" span>& up</Text>
+              <Text size="sm" c="dimmed">({count})</Text>
+            </Group>
+          </UnstyledButton>
+        );
+      })}
+    </Stack>
+  );
+};
+
+const SearchPage: React.FC = () => {
+  return (
+    <Box bg="#F2F2F2" style={{ minHeight: '100vh' }}>
+      <Header />
+      <Container size="xl">
+        <Group mb="xl">
+          <Title order={1} size="h3" fw={600} c="#2A2A2A">
+            Find things to do in any destination
+          </Title>
+          <Text c="dimmed" size="sm">
+            Book tours, activities, and attractions anywhere
+          </Text>
+        </Group>
+
+        <Grid>
+          {/* Filters Section */}
+          <Grid.Col span={3}>
+            <Paper shadow="xs" p="md" radius="md">
+              <Stack gap="xl">
+                <div>
+                  <Title order={4} mb="md" c="#2A2A2A">Activity Type</Title>
+                  <RefinementList attribute="activityType" />
+                </div>
+                
+                <div>
+                  <Title order={4} mb="md" c="#2A2A2A">Price Range</Title>
+                  <RangeInput attribute="price" />
+                </div>
+                
+                <div>
+                  <Title order={4} mb="md" c="#2A2A2A">Duration (hours)</Title>
+                  <DurationRangeSlider />
+                </div>
+                
+                <div>
+                  <Title order={4} mb="md" c="#2A2A2A">Rating</Title>
+                  <CustomRatingMenu />
+                </div>
+              </Stack>
+            </Paper>
+          </Grid.Col>
+
+          {/* Main Content Section */}
+          <Grid.Col span={9}>
+            <Paper shadow="xs" p="md" mb="md" radius="md">
+              <SearchBox 
+                placeholder="Search tours and activities..." 
+                classNames={{
+                  root: 'custom-searchbox',
+                  form: 'custom-searchbox-form',
+                  input: 'custom-searchbox-input',
+                  submit: 'custom-searchbox-submit',
+                  reset: 'custom-searchbox-reset',
+                }}
+              />
+              <Configure hitsPerPage={12} />
+            </Paper>
+            
+            <Paper shadow="xs" radius="md">
+              <Box p="md">
+                <SearchStats />
+              </Box>
+              <Hits 
+                classNames={{
+                  list: 'tour-hits-list',
+                  item: 'tour-hits-item',
+                }} 
+                hitComponent={TourCard} 
+              />
+              <Box p="md">
+                <Pagination
+                  padding={2}
+                  showFirst={true}
+                  showPrevious={true}
+                  showNext={true}
+                  showLast={true}
+                  totalPages={84}
+                  classNames={{
+                    root: 'custom-pagination',
+                    list: 'custom-pagination-list',
+                    item: 'custom-pagination-item',
+                    selectedItem: 'custom-pagination-selected-item',
+                    disabledItem: 'custom-pagination-disabled-item',
+                    link: 'custom-pagination-link',
+                  }}
+                />
+              </Box>
+            </Paper>
+          </Grid.Col>
+        </Grid>
+      </Container>
+    </Box>
+  );
+};
+
+export default SearchPage;
