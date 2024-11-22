@@ -3,10 +3,9 @@ import {
   SearchBox,
   Hits,
   RefinementList,
-  RangeInput,
-  Configure,
   connectRange,
   connectRefinementList,
+  Configure,
   Pagination,
 } from 'react-instantsearch-dom';
 import { 
@@ -15,12 +14,12 @@ import {
   Paper, 
   Title, 
   Stack, 
-  RangeSlider, 
   Box,
   Text,
   Group,
   UnstyledButton,
   Rating,
+  NumberInput
 } from '@mantine/core';
 import TourCard from './TourCard';
 import SearchStats from './SearchStats';
@@ -45,26 +44,53 @@ interface RatingProps {
   refine: (value: string) => void;
 }
 
-const DurationRangeSlider = connectRange<RangeProps>(({ min, max, currentRefinement, refine }) => {
-  const handleChange = (value: [number, number]) => {
-    refine({ min: value[0], max: value[1] });
+const DurationRangeInput = connectRange<RangeProps>(({ min, max, currentRefinement, refine }) => {
+  const [inputValues, setInputValues] = React.useState({
+    min: currentRefinement.min || '',
+    max: currentRefinement.max || '',
+  });
+
+  React.useEffect(() => {
+    setInputValues({
+      min: currentRefinement.min || '',
+      max: currentRefinement.max || '',
+    });
+  }, [currentRefinement]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    refine({
+      min: inputValues.min === '' ? undefined : Number(inputValues.min),
+      max: inputValues.max === '' ? undefined : Number(inputValues.max),
+    });
   };
 
   return (
     <Box px="md">
-      <RangeSlider
-        min={min}
-        max={max}
-        step={0.5}
-        label={(value: number) => `${value}h`}
-        value={[currentRefinement.min || min || 0, currentRefinement.max || max || 12]}
-        onChange={handleChange}
-        marks={[
-          { value: 1, label: '1h' },
-          { value: 6, label: '6h' },
-          { value: 12, label: '12h' },
-        ]}
-      />
+      <form onSubmit={handleSubmit}>
+        <Group>
+          <NumberInput
+            value={inputValues.min}
+            onChange={(value) => setInputValues({ ...inputValues, min: value || '' })}
+            placeholder="Min hours"
+            min={min}
+            max={max}
+            step={0.5}
+            w={100}
+          />
+          <Text>to</Text>
+          <NumberInput
+            value={inputValues.max}
+            onChange={(value) => setInputValues({ ...inputValues, max: value || '' })}
+            placeholder="Max hours"
+            min={min}
+            max={max}
+            step={0.5}
+            w={100}
+          />
+          <button type="submit" style={{ display: 'none' }}>Apply</button>
+        </Group>
+      </form>
     </Box>
   );
 });
@@ -115,7 +141,7 @@ const SearchPage = () => {
 
                 <div>
                   <Title order={6} mb="xs">Duration</Title>
-                  <DurationRangeSlider attribute="durationHours" min={1} max={12} />
+                  <DurationRangeInput attribute="durationHours" min={1} max={12} />
                 </div>
 
                 <div>
